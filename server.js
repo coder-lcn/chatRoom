@@ -12,9 +12,7 @@ class App {
 
   onMessage(msg, userName) {
     this.userList.forEach((item) => {
-      if (item.userName !== userName) {
-        item.ws.send(`${userName}:${msg}`);
-      }
+      item.ws.send(`${userName}:${msg}`);
     });
   }
 

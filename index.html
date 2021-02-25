@@ -34,10 +34,10 @@
         background-color: #ddd;
       }
 
-      label textarea {
+       input {
         margin: 0 20px;
         outline: none;
-        padding: 4px;
+        padding: 10px;
       }
 
       label button {
@@ -53,11 +53,11 @@
   <body>
     <ul id="chatList"></ul>
 
-    <label>
+    <div>
       <span id="userName"></span>
-      <textarea name="" id="text" cols="30" rows="10"></textarea>
+      <input id="text"></textarea>
       <button id="send">send</button>
-    </label>
+    </div>
 
     <script>
       const chatList = document.getElementById("chatList");
@@ -66,19 +66,26 @@
       const userNameDom = document.getElementById("userName");
       userNameDom.innerText = userName + "：";
 
-      // 打开一个WebSocket:
       var ws = new WebSocket(`ws://localhost:3000?userName=${userName}`);
-      // 响应onmessage事件:
 
       ws.onmessage = function (msg) {
         const [otherUserName, message] = msg.data.split(":");
         addChatToList(otherUserName, message);
+
+        if (otherUserName === userName.toString()) {
+          textDom.value = "";
+          textDom.focus();
+        }
       };
 
+      textDom.addEventListener("keydown", (e) => {
+        if (e.keyCode === 13) {
+          ws.send(textDom.value);
+        }
+      });
+
       document.getElementById("send").onclick = () => {
-        addChatToList(userName, textDom.value);
         ws.send(textDom.value);
-        textDom.value = "";
       };
 
       function addChatToList(userName, msg) {
