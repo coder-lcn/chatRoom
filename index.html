@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      body {
+        width: 1000px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      ul {
+        width: 50%;
+        height: 500px;
+        border: 1px solid #ddd;
+        overflow: auto;
+      }
+
+      label {
+        display: flex;
+      }
+
+      label span {
+        height: 30px;
+        line-height: 30px;
+        text-align: center;
+        padding: 10px;
+        background-color: #ddd;
+      }
+
+      label textarea {
+        margin: 0 20px;
+        outline: none;
+        padding: 4px;
+      }
+
+      label button {
+        width: 40px;
+        height: 30px;
+      }
+
+      li {
+        list-style: none;
+      }
+    </style>
+  </head>
+  <body>
+    <ul id="chatList"></ul>
+
+    <label>
+      <span id="userName"></span>
+      <textarea name="" id="text" cols="30" rows="10"></textarea>
+      <button id="send">send</button>
+    </label>
+
+    <script>
+      const chatList = document.getElementById("chatList");
+      const textDom = document.getElementById("text");
+      const userName = new Date().getTime();
+      const userNameDom = document.getElementById("userName");
+      userNameDom.innerText = userName + "：";
+
+      // 打开一个WebSocket:
+      var ws = new WebSocket(`ws://localhost:3000?userName=${userName}`);
+      // 响应onmessage事件:
+
+      ws.onmessage = function (msg) {
+        const [otherUserName, message] = msg.data.split(":");
+        addChatToList(otherUserName, message);
+      };
+
+      document.getElementById("send").onclick = () => {
+        addChatToList(userName, textDom.value);
+        ws.send(textDom.value);
+        textDom.value = "";
+      };
+
+      function addChatToList(userName, msg) {
+        const oneChat = document.createElement("li");
+
+        const theName = document.createElement("span");
+        theName.innerText = userName + "：";
+
+        const theContent = document.createElement("span");
+        theContent.innerText = msg;
+
+        oneChat.append(theName, theContent);
+        chatList.appendChild(oneChat);
+      }
+    </script>
+  </body>
+</html>
