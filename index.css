@@ -1,0 +1,103 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+html,
+body {
+  height: 100%;
+}
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-height: 300px;
+}
+.container ul {
+  flex: 1;
+  border: 1px solid #ddd;
+  overflow: auto;
+  padding: 10px;
+  border-radius: 10px;
+  background: url(http://leechar_rem.gitee.io/leechar/static/media/b1.9877a5b8.jpg) center center no-repeat;
+  background-size: cover;
+}
+.container ul::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+.container ul li {
+  list-style: none;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: flex-start;
+}
+.container ul li.self {
+  flex-direction: row-reverse;
+}
+.container ul li.self span:first-child {
+  margin-right: 0;
+  margin-left: 10px;
+}
+.container ul li span:first-child {
+  background: #fff;
+  border-radius: 10px;
+  padding: 4px 10px;
+  display: inline-block;
+  margin-right: 10px;
+  border-radius: 4px;
+  background-color: #ffedc9;
+  color: #000;
+}
+.container ul li span:last-child {
+  background-color: #fdf3f3;
+  padding: 10px;
+  max-width: 300px;
+}
+.container .form {
+  height: 100px;
+  display: flex;
+  margin-top: 10px;
+  border-radius: 10px;
+}
+.container .form .username {
+  text-align: center;
+  background-color: #faecff;
+  height: 100%;
+  padding: 0 10px;
+  box-sizing: border-box;
+  overflow: auto;
+  width: 30%;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.container .form .username span {
+  display: block;
+  width: 100%;
+}
+.container .form .username span:focus {
+  outline: none;
+}
+.container .form textarea {
+  outline: none;
+  flex: 1;
+  margin: 0 10px;
+  resize: none;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+.container .form button {
+  width: 80px;
+  height: 100%;
+  border-radius: 10px;
+  outline: none;
+  border: none;
+  background-color: #ddd;
+}

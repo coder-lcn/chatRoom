@@ -1,98 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <style>
-      body {
-        width: 1000px;
-        margin: 0 auto;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-      }
 
-      ul {
-        width: 50%;
-        height: 500px;
-        border: 1px solid #ddd;
-        overflow: auto;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport"
+    content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=0">
 
-      label {
-        display: flex;
-      }
+  <title>Document</title>
+  <link rel="stylesheet" href="./index.css">
 
-      label span {
-        height: 30px;
-        line-height: 30px;
-        text-align: center;
-        padding: 10px;
-        background-color: #ddd;
-      }
+</head>
 
-      label textarea {
-        margin: 0 20px;
-        outline: none;
-        padding: 4px;
-      }
-
-      label button {
-        width: 40px;
-        height: 30px;
-      }
-
-      li {
-        list-style: none;
-      }
-    </style>
-  </head>
-  <body>
+<body>
+  <div class="container">
     <ul id="chatList"></ul>
+    <div class="form">
+      <div class="username">
+        <span id="userName" contenteditable></span>
+      </div>
+      <textarea id="text"></textarea>
+      <button id="send">发送</button>
+    </div>
+  </div>
 
-    <label>
-      <span id="userName"></span>
-      <textarea name="" id="text" cols="30" rows="10"></textarea>
-      <button id="send">send</button>
-    </label>
+  <script>
+    const chatList = document.getElementById("chatList");
+    const textDom = document.getElementById("text");
+    const userNameDom = document.getElementById("userName");
 
-    <script>
-      const chatList = document.getElementById("chatList");
-      const textDom = document.getElementById("text");
-      const userName = new Date().getTime();
-      const userNameDom = document.getElementById("userName");
-      userNameDom.innerText = userName + "：";
+    let userName = localStorage.getItem('userName') || new Date().getTime();
+    userNameDom.innerText = userName;
+    userNameDom.addEventListener('input', e => {
+      userName = e.target.innerText;
+      localStorage.setItem('userName', userName);
+    })
 
-      // 打开一个WebSocket:
-      var ws = new WebSocket(`ws://localhost:3000?userName=${userName}`);
-      // 响应onmessage事件:
+    // 打开一个WebSocket:
+    var ws = new WebSocket(`ws://192.168.199.187:3000`);
+    // 响应onmessage事件:
 
-      ws.onmessage = function (msg) {
-        const [otherUserName, message] = msg.data.split(":");
-        addChatToList(otherUserName, message);
-      };
+    ws.onmessage = function (msg) {
+      const [otherUserName, message] = msg.data.split(":");
+      const oneChat = addChatToList(otherUserName, message);
 
-      document.getElementById("send").onclick = () => {
-        addChatToList(userName, textDom.value);
-        ws.send(textDom.value);
-        textDom.value = "";
-      };
-
-      function addChatToList(userName, msg) {
-        const oneChat = document.createElement("li");
-
-        const theName = document.createElement("span");
-        theName.innerText = userName + "：";
-
-        const theContent = document.createElement("span");
-        theContent.innerText = msg;
-
-        oneChat.append(theName, theContent);
-        chatList.appendChild(oneChat);
+      oneChat.scrollIntoView({ behavior: 'smooth' });
+      if (otherUserName === userName.toString()) {
+        oneChat.classList.add('self');
       }
-    </script>
-  </body>
+    };
+
+    document.getElementById("send").onclick = () => {
+      ws.send(`${userName}:${textDom.value}`);
+      textDom.value = "";
+    };
+
+    textDom.addEventListener('keydown', e => {
+      if (e.keyCode === 13) {
+        ws.send(`${userName}:${textDom.value}`);
+
+        setTimeout(() => {
+          textDom.value = "";
+        }, 0);
+      }
+    })
+
+    textDom.addEventListener('focus', e => {
+      e.preventDefault();
+    })
+
+    function addChatToList(userName, msg) {
+      const oneChat = document.createElement("li");
+
+      const theName = document.createElement("span");
+      theName.innerText = userName
+
+      const theContent = document.createElement("span");
+      theContent.innerText = msg;
+
+      oneChat.append(theName, theContent);
+      chatList.appendChild(oneChat);
+
+      return oneChat;
+
+    }
+  </script>
+</body>
+
 </html>
