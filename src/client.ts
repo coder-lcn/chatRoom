@@ -6,7 +6,6 @@ const chatList = document.getElementById("chatList")!;
 const textarea = document.getElementById("text") as HTMLTextAreaElement;
 const userNameBox = document.getElementById("userName")!;
 const sendBtn = document.getElementById("send")!;
-let pasteImageContainer = document.getElementById("pasteImage") as HTMLDivElement;
 
 // Varible - store
 let userName = localStorage.getItem("userName") || new Date().getTime().toString();
@@ -14,33 +13,26 @@ userNameBox.innerText = userName;
 
 // Varible - function
 function pasteImage(url: string) {
-  if (!pasteImageContainer) {
-    pasteImageContainer = document.createElement("div");
-    pasteImageContainer.id = "pasteImage";
-    pasteImageContainer.onclick = () => (pasteImageContainer.style.display = "none");
+  const pasteImageContainer = document.createElement("div");
 
-    const img = document.createElement("img");
-    img.src = url;
-    img.onclick = (e) => e.stopPropagation();
+  pasteImageContainer.id = "pasteImage";
+  pasteImageContainer.onclick = () => (pasteImageContainer.style.display = "none");
 
-    const btn = document.createElement("span");
-    btn.innerText = "发送";
-    btn.onclick = (e) => {
-      e.stopPropagation();
-      onSend({ userName, type: "image", message: url });
-      pasteImageContainer.style.display = "none";
-    };
+  const img = document.createElement("img");
+  img.src = url;
+  img.onclick = (e) => e.stopPropagation();
 
-    pasteImageContainer.append(img, btn);
-    appContainer.appendChild(pasteImageContainer);
-  } else {
-    pasteImageContainer.querySelector("img")?.setAttribute("src", url);
-    pasteImageContainer.querySelector("span")!.onclick = (e) => {
-      e.stopPropagation();
-      onSend({ userName, type: "image", message: url });
-      pasteImageContainer.style.display = "none";
-    };
-  }
+  const btn = document.createElement("span");
+  btn.innerText = "发送";
+  btn.onclick = (e) => {
+    e.stopPropagation();
+    onSend({ userName, type: "image", message: url });
+    pasteImageContainer.style.display = "none";
+    pasteImageContainer.remove();
+  };
+
+  pasteImageContainer.append(img, btn);
+  appContainer.appendChild(pasteImageContainer);
 
   pasteImageContainer.style.display = "flex";
 }
@@ -73,6 +65,8 @@ function messageFactory(data: MessageProps) {
   if (data.type === "message") {
     content.innerText = data.message;
   } else if (data.type === "image") {
+    content.style.fontSize = "0";
+
     const img = new Image();
     img.src = data.message;
     content.append(img);
@@ -133,11 +127,15 @@ function onSend(data: MessageProps) {
 
 function onMessageBoxChange(e: KeyboardEvent) {
   if (e.keyCode === 13) {
-    ws.send({ userName, type: "message", message: textarea.value });
+    try {
+      (document.querySelector("#pasteImage span") as HTMLSpanElement)!.click();
+    } catch (error) {
+      ws.send({ userName, type: "message", message: textarea.value });
 
-    setTimeout(() => {
-      textarea.value = "";
-    }, 0);
+      setTimeout(() => {
+        textarea.value = "";
+      }, 0);
+    }
   }
 }
 
