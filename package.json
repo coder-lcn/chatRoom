@@ -1,10 +1,13 @@
 {
-  "name": "chatRoom",
+  "name": "chat-room",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon server.ts",
+    "dev:client": "cross-env NODE_ENV=development tsc -w",
+    "dev:server": "cross-env NODE_ENV=development nodemon ./src/server.ts",
+    "build": "cross-env NODE_ENV=production tsc && npm run compress",
+    "compress": "uglifyjs lib/client.js -o lib/client.js && uglifyjs lib/server.js -o lib/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,10 +22,12 @@
   },
   "homepage": "https://github.com/changnan666/chatRoom#readme",
   "dependencies": {
+    "uglify-js": "^3.12.8",
     "ws": "^7.4.3"
   },
   "devDependencies": {
     "@types/ws": "^7.4.0",
+    "cross-env": "^7.0.3",
     "nodemon": "^2.0.7"
   }
 }

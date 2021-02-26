@@ -1,90 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=0"
+    />
 
-<head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport"
-    content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./lib/index.css" />
+  </head>
 
-  <title>Document</title>
-  <link rel="stylesheet" href="./index.css">
-
-</head>
-
-<body>
-  <div class="container">
-    <ul id="chatList"></ul>
-    <div class="form">
-      <div class="username">
-        <span id="userName" contenteditable></span>
+  <body>
+    <div class="container">
+      <ul id="chatList"></ul>
+      <div class="form">
+        <div class="username">
+          <span id="userName" contenteditable></span>
+        </div>
+        <textarea id="text"></textarea>
+        <button id="send">发送</button>
       </div>
-      <textarea id="text"></textarea>
-      <button id="send">发送</button>
     </div>
-  </div>
 
-  <script>
-    const chatList = document.getElementById("chatList");
-    const textDom = document.getElementById("text");
-    const userNameDom = document.getElementById("userName");
-
-    let userName = localStorage.getItem('userName') || new Date().getTime();
-    userNameDom.innerText = userName;
-    userNameDom.addEventListener('input', e => {
-      userName = e.target.innerText;
-      localStorage.setItem('userName', userName);
-    })
-
-    // 打开一个WebSocket:
-    var ws = new WebSocket(`ws://192.168.199.187:3000`);
-    // 响应onmessage事件:
-
-    ws.onmessage = function (msg) {
-      const [otherUserName, message] = msg.data.split(":");
-      const oneChat = addChatToList(otherUserName, message);
-
-      oneChat.scrollIntoView({ behavior: 'smooth' });
-      if (otherUserName === userName.toString()) {
-        oneChat.classList.add('self');
-      }
-    };
-
-    document.getElementById("send").onclick = () => {
-      ws.send(`${userName}:${textDom.value}`);
-      textDom.value = "";
-    };
-
-    textDom.addEventListener('keydown', e => {
-      if (e.keyCode === 13) {
-        ws.send(`${userName}:${textDom.value}`);
-
-        setTimeout(() => {
-          textDom.value = "";
-        }, 0);
-      }
-    })
-
-    textDom.addEventListener('focus', e => {
-      e.preventDefault();
-    })
-
-    function addChatToList(userName, msg) {
-      const oneChat = document.createElement("li");
-
-      const theName = document.createElement("span");
-      theName.innerText = userName
-
-      const theContent = document.createElement("span");
-      theContent.innerText = msg;
-
-      oneChat.append(theName, theContent);
-      chatList.appendChild(oneChat);
-
-      return oneChat;
-
-    }
-  </script>
-</body>
-
+    <script src="./lib/client.js"></script>
+  </body>
 </html>
