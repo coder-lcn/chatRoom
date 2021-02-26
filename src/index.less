@@ -6,6 +6,7 @@
 html,
 body {
   height: 100%;
+  background-image: linear-gradient(45deg, #30cfd0 0%, #330867 100%);
 }
 
 .container {
@@ -21,12 +22,12 @@ body {
 
   ul {
     flex: 1;
-    border: 1px solid #ddd;
     overflow: auto;
     padding: 10px;
     border-radius: 10px;
     background: url(http://leechar_rem.gitee.io/leechar/static/media/b1.9877a5b8.jpg) center center no-repeat;
     background-size: cover;
+    box-shadow: 0 0 4px #000;
 
     &::-webkit-scrollbar {
       width: 0;
@@ -46,12 +47,18 @@ body {
           margin-right: 0;
           margin-left: 10px;
         }
+
+        span:last-child::after {
+          left: auto;
+          right: -16px;
+          border-color: transparent transparent transparent #fdf3f3;
+        }
       }
 
       span:first-child {
         background: #fff;
         border-radius: 10px;
-        padding: 4px 10px;
+        padding: 10px;
         display: inline-block;
         margin-right: 10px;
         border-radius: 4px;
@@ -63,6 +70,9 @@ body {
         background-color: #fdf3f3;
         padding: 10px;
         max-width: 300px;
+        word-break: break-all;
+        border-radius: 4px;
+        position: relative;
 
         img {
           width: 100%;
@@ -78,6 +88,17 @@ body {
             padding: 10px;
           }
         }
+      }
+
+      span:last-child::after {
+        content: "";
+        position: absolute;
+        top: 10px;
+        border-width: 10px;
+        border-style: solid;
+        right: auto;
+        left: -16px;
+        border-color: transparent #fdf3f3 transparent transparent;
       }
     }
   }
@@ -119,6 +140,8 @@ body {
       padding: 10px;
       border: 1px solid #ddd;
       border-radius: 10px;
+      background-color: transparent;
+      color: #fff;
     }
 
     button {

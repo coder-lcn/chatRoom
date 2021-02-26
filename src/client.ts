@@ -38,6 +38,8 @@ function pasteImage(url: string) {
 }
 
 function onPaste(evt: ClipboardEvent) {
+  evt.preventDefault();
+
   try {
     const cd = evt.clipboardData!;
     const file = cd.files[0];
@@ -50,15 +52,26 @@ function onPaste(evt: ClipboardEvent) {
 
     reader.readAsDataURL(file);
 
-    evt.preventDefault();
-  } catch (error) { }
+
+  } catch (error) {
+    const text = evt.clipboardData!.getData('Text');
+
+    // TODO: 粘贴大体积文本
+    const byteSize = new Blob([text]).size;
+    const mb = (num: number) => num * 1024;
+
+    textarea.value = textarea.value + text;
+  }
 }
 
 function adjustNewRecord(newRecode: HTMLElement, newRecordOwner: string) {
-  newRecode.scrollIntoView({ behavior: "smooth" });
   if (newRecordOwner === userName) {
     newRecode.classList.add("self");
   }
+
+  setTimeout(() => {
+    newRecode.scrollIntoView({ behavior: "smooth" });
+  }, 0);
 }
 
 function messageFactory(data: MessageProps) {
