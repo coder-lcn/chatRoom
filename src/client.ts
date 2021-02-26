@@ -146,7 +146,7 @@ textarea.addEventListener("keydown", onMessageBoxChange);
 textarea.addEventListener("paste", onPaste);
 
 // WebSocket Server
-var ws = new WebSocket(`ws://localhost:3000`) as ChatRoom;
+const ws = new WebSocket(`ws://localhost:3000`) as ChatRoom;
 
 const oldSend = ws.send;
 ws.send = function (data: MessageProps) {
