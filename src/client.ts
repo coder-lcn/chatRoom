@@ -49,7 +49,9 @@ function onPaste(evt: ClipboardEvent) {
     };
 
     reader.readAsDataURL(file);
-  } catch (error) {}
+
+    evt.preventDefault();
+  } catch (error) { }
 }
 
 function adjustNewRecord(newRecode: HTMLElement, newRecordOwner: string) {
@@ -71,22 +73,16 @@ function messageFactory(data: MessageProps) {
     img.src = data.message;
     content.append(img);
     img.onclick = () => {
-      const target = img.cloneNode() as HTMLImageElement;
-
       const mask = document.createElement("div");
       mask.className = "mask";
+
       mask.onclick = (e) => {
         e.stopPropagation();
         mask.remove();
       };
 
-      if (img.clientHeight > img.clientWidth) {
-        target.style.cssText = "width: auto; height: 90vh";
-      } else {
-        target.style.cssText = "width: 90vw; height: auto";
-      }
-
-      mask.appendChild(target);
+      console.log(img.src);
+      mask.style.backgroundImage = `url(${img.src})`;
       appContainer.appendChild(mask);
     };
   }
@@ -126,15 +122,19 @@ function onSend(data: MessageProps) {
 }
 
 function onMessageBoxChange(e: KeyboardEvent) {
+  const isEmptyText = textarea.value.trim() === '';
+
   if (e.keyCode === 13) {
+    if (isEmptyText) e.preventDefault();
     try {
       (document.querySelector("#pasteImage span") as HTMLSpanElement)!.click();
     } catch (error) {
-      ws.send({ userName, type: "message", message: textarea.value });
+      if (!isEmptyText) {
+        e.preventDefault();
 
-      setTimeout(() => {
+        ws.send({ userName, type: "message", message: textarea.value });
         textarea.value = "";
-      }, 0);
+      }
     }
   }
 }
@@ -142,7 +142,7 @@ function onMessageBoxChange(e: KeyboardEvent) {
 // DOM Event
 userNameBox.addEventListener("input", onChangeUserName);
 sendBtn.addEventListener("click", () => onSend({ userName, message: textarea.value, type: "message" }));
-textarea.addEventListener("keydown", onMessageBoxChange);
+textarea.addEventListener('keypress', onMessageBoxChange);
 textarea.addEventListener("paste", onPaste);
 
 // WebSocket Server
