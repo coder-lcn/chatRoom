@@ -1,10 +1,10 @@
-import WebSocket, { Server } from 'ws'
-import http from 'http'
+import WebSocket, { Server } from "ws";
+import http from "http";
 
 class App {
   server: Server;
   port = 3000;
-  userList: WebSocket[] = []
+  userList: WebSocket[] = [];
 
   constructor() {
     this.init.call(this);

@@ -1,59 +1,160 @@
+// Type
+
+// Varible - dom
+const appContainer = document.getElementById("container")!;
 const chatList = document.getElementById("chatList")!;
-const textDom = document.getElementById("text") as HTMLTextAreaElement;
-const userNameDom = document.getElementById("userName")!;
+const textarea = document.getElementById("text") as HTMLTextAreaElement;
+const userNameBox = document.getElementById("userName")!;
+const sendBtn = document.getElementById("send")!;
+let pasteImageContainer = document.getElementById("pasteImage") as HTMLDivElement;
 
-let userName =
-  localStorage.getItem("userName") || new Date().getTime().toString();
-userNameDom.innerText = userName;
-userNameDom.addEventListener("input", (e) => {
-  userName = (e.target as HTMLElement).innerText;
-  localStorage.setItem("userName", userName);
-});
+// Varible - store
+let userName = localStorage.getItem("userName") || new Date().getTime().toString();
+userNameBox.innerText = userName;
 
-// 打开一个WebSocket:
-var ws = new WebSocket(`ws://localhost:3000`);
-// 响应onmessage事件:
+// Varible - function
+function pasteImage(url: string) {
+  if (!pasteImageContainer) {
+    pasteImageContainer = document.createElement("div");
+    pasteImageContainer.id = "pasteImage";
+    pasteImageContainer.onclick = () => (pasteImageContainer.style.display = "none");
 
-ws.onmessage = function (msg) {
-  const [otherUserName, message] = msg.data.split(":");
-  const oneChat = addChatToList(otherUserName, message);
+    const img = document.createElement("img");
+    img.src = url;
+    img.onclick = (e) => e.stopPropagation();
 
-  oneChat.scrollIntoView({ behavior: "smooth" });
-  if (otherUserName === userName) {
-    oneChat.classList.add("self");
+    const btn = document.createElement("span");
+    btn.innerText = "发送";
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      onSend({ userName, type: "image", message: url });
+      pasteImageContainer.style.display = "none";
+    };
+
+    pasteImageContainer.append(img, btn);
+    appContainer.appendChild(pasteImageContainer);
+  } else {
+    pasteImageContainer.querySelector("img")?.setAttribute("src", url);
+    pasteImageContainer.querySelector("span")!.onclick = (e) => {
+      e.stopPropagation();
+      onSend({ userName, type: "image", message: url });
+      pasteImageContainer.style.display = "none";
+    };
   }
-};
 
-document.getElementById("send")!.onclick = () => {
-  ws.send(`${userName}:${textDom.value}`);
-  textDom.value = "";
-};
+  pasteImageContainer.style.display = "flex";
+}
 
-textDom.addEventListener("keydown", (e) => {
-  if (e.keyCode === 13) {
-    ws.send(`${userName}:${textDom.value}`);
+function onPaste(evt: ClipboardEvent) {
+  try {
+    const cd = evt.clipboardData!;
+    const file = cd.files[0];
 
-    setTimeout(() => {
-      textDom.value = "";
-    }, 0);
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+      pasteImage((e.target as any).result);
+    };
+
+    reader.readAsDataURL(file);
+  } catch (error) {}
+}
+
+function adjustNewRecord(newRecode: HTMLElement, newRecordOwner: string) {
+  newRecode.scrollIntoView({ behavior: "smooth" });
+  if (newRecordOwner === userName) {
+    newRecode.classList.add("self");
   }
-});
+}
 
-textDom.addEventListener("focus", (e) => {
-  e.preventDefault();
-});
+function messageFactory(data: MessageProps) {
+  const content = document.createElement("span");
 
-function addChatToList(userName: string, msg: string) {
+  if (data.type === "message") {
+    content.innerText = data.message;
+  } else if (data.type === "image") {
+    const img = new Image();
+    img.src = data.message;
+    content.append(img);
+    img.onclick = () => {
+      const target = img.cloneNode() as HTMLImageElement;
+
+      const mask = document.createElement("div");
+      mask.className = "mask";
+      mask.onclick = (e) => {
+        e.stopPropagation();
+        mask.remove();
+      };
+
+      if (img.clientHeight > img.clientWidth) {
+        target.style.cssText = "width: auto; height: 90vh";
+      } else {
+        target.style.cssText = "width: 90vw; height: auto";
+      }
+
+      mask.appendChild(target);
+      appContainer.appendChild(mask);
+    };
+  }
+
+  return content;
+}
+
+function addChatToList(data: MessageProps) {
   const oneChat = document.createElement("li");
 
   const theName = document.createElement("span");
-  theName.innerText = userName;
+  theName.innerText = data.userName;
 
-  const theContent = document.createElement("span");
-  theContent.innerText = msg;
-
+  const theContent = messageFactory(data);
   oneChat.append(theName, theContent);
-  chatList.appendChild(oneChat);
 
-  return oneChat;
+  chatList.appendChild(oneChat);
+  adjustNewRecord(oneChat, data.userName);
 }
+
+function onChangeUserName(e: Event) {
+  userName = (e.target as HTMLElement).innerText;
+  localStorage.setItem("userName", userName);
+}
+
+function onSend(data: MessageProps) {
+  switch (data.type) {
+    case "message":
+      textarea.value = "";
+      break;
+    case "image":
+      // ...
+      break;
+  }
+
+  ws.send(data);
+}
+
+function onMessageBoxChange(e: KeyboardEvent) {
+  if (e.keyCode === 13) {
+    ws.send({ userName, type: "message", message: textarea.value });
+
+    setTimeout(() => {
+      textarea.value = "";
+    }, 0);
+  }
+}
+
+// DOM Event
+userNameBox.addEventListener("input", onChangeUserName);
+sendBtn.addEventListener("click", () => onSend({ userName, message: textarea.value, type: "message" }));
+textarea.addEventListener("keydown", onMessageBoxChange);
+textarea.addEventListener("paste", onPaste);
+
+// WebSocket Server
+var ws = new WebSocket(`ws://localhost:3000`) as ChatRoom;
+
+const oldSend = ws.send;
+ws.send = function (data: MessageProps) {
+  return oldSend.call(this, JSON.stringify(data));
+};
+ws.onmessage = function (msg: MessageEvent) {
+  const data = JSON.parse(msg.data) as MessageProps;
+  addChatToList(data);
+};

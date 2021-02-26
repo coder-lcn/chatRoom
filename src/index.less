@@ -1,13 +1,13 @@
 * {
   margin: 0;
-  padding: 0;  
-}  
-       
+  padding: 0;
+}
+
 html,
 body {
   height: 100%;
-}     
- 
+}
+
 .container {
   max-width: 600px;
   margin: 0 auto;
@@ -25,8 +25,7 @@ body {
     overflow: auto;
     padding: 10px;
     border-radius: 10px;
-    background: url(http://leechar_rem.gitee.io/leechar/static/media/b1.9877a5b8.jpg)
-      center center no-repeat;
+    background: url(http://leechar_rem.gitee.io/leechar/static/media/b1.9877a5b8.jpg) center center no-repeat;
     background-size: cover;
 
     &::-webkit-scrollbar {
@@ -64,6 +63,21 @@ body {
         background-color: #fdf3f3;
         padding: 10px;
         max-width: 300px;
+
+        img {
+          width: 100%;
+          cursor: zoom-in;
+
+          &.full-screen {
+            position: fixed;
+            cursor: zoom-out;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 10px;
+          }
+        }
       }
     }
   }
@@ -115,5 +129,50 @@ body {
       border: none;
       background-color: #ddd;
     }
+  }
+
+  #pasteImage {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    display: none;
+    overflow: auto;
+
+    img {
+      border-radius: 10px;
+      padding: 10px;
+      background-color: #fff;
+      max-width: 90vw;
+      max-height: 90vh;
+    }
+    span {
+      margin-top: 10px;
+      color: #fff;
+      padding: 10px 30px;
+      border-radius: 10px;
+      background-color: #ffa3f5;
+      cursor: pointer;
+    }
+  }
+
+  .mask {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: auto;
+    cursor: zoom-out;
   }
 }
