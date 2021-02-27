@@ -6,12 +6,36 @@ const chatList = document.getElementById("chatList")!;
 const textarea = document.getElementById("text") as HTMLTextAreaElement;
 const userNameBox = document.getElementById("userName")!;
 const sendBtn = document.getElementById("send")!;
+let compress: Compress;
 
 // Varible - store
 let userName = localStorage.getItem("userName") || new Date().getTime().toString();
 userNameBox.innerText = userName;
 
 // Varible - function
+function fileSize(text: string) {
+  return new Blob([text]).size;
+}
+
+function mb(num: number) {
+  return num * 1024 * 1024;
+}
+
+function base64ToFile(dataurl: string) {
+  var arr = dataurl.split(',') || [''];
+  // @ts-ignore
+  var mime = arr[0].match(/:(.*?);/)[1];
+  var bstr = atob(arr[1]);
+  var n = bstr.length;
+  var u8arr = new Uint8Array(n);
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new File([u8arr], 'filename', {
+    type: mime
+  });
+}
+
 function pasteImage(url: string) {
   const pasteImageContainer = document.createElement("div");
 
@@ -38,29 +62,39 @@ function pasteImage(url: string) {
 }
 
 function onPaste(evt: ClipboardEvent) {
-  evt.preventDefault();
-
   try {
     const cd = evt.clipboardData!;
     const file = cd.files[0];
 
     const reader = new FileReader();
 
-    reader.onload = function (e) {
-      pasteImage((e.target as any).result);
+    reader.onload = async function (e) {
+      if (!compress) {
+        compress = new Compress();
+      }
+
+      const text = (e.target as any).result
+
+      if (fileSize(text) > mb(1)) {
+        const fileList = [base64ToFile(text)];
+        const imgSrc = await compress.compress(fileList, { size: 1, quality: 0.1 })
+
+        const { prefix, data } = imgSrc[0];
+
+        pasteImage(prefix + data);
+        console.log('compress');
+      } else {
+        pasteImage(text)
+        console.log('no compress');
+      }
     };
 
     reader.readAsDataURL(file);
 
-
+    evt.preventDefault();
   } catch (error) {
     const text = evt.clipboardData!.getData('Text');
-
     // TODO: 粘贴大体积文本
-    const byteSize = new Blob([text]).size;
-    const mb = (num: number) => num * 1024;
-
-    textarea.value = textarea.value + text;
   }
 }
 
@@ -85,6 +119,7 @@ function messageFactory(data: MessageProps) {
     const img = new Image();
     img.src = data.message;
     content.append(img);
+
     img.onclick = () => {
       const mask = document.createElement("div");
       mask.className = "mask";
@@ -94,7 +129,6 @@ function messageFactory(data: MessageProps) {
         mask.remove();
       };
 
-      console.log(img.src);
       mask.style.backgroundImage = `url(${img.src})`;
       appContainer.appendChild(mask);
     };
