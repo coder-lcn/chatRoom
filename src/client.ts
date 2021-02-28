@@ -19,6 +19,15 @@ function fileSize(text: string) {
   return new Blob([text]).size / 1024
 }
 
+function compressImage(url: string) {
+  if (!compress) {
+    compress = new Compress();
+  }
+
+  const file = base64ToFile(url);
+  return compress.compress([file], { size: 1, quality: 0.1 })
+}
+
 function base64ToFile(dataurl: string) {
   var arr = dataurl.split(',') || [''];
   // @ts-ignore
@@ -67,15 +76,10 @@ function onPaste(evt: ClipboardEvent) {
     const reader = new FileReader();
 
     reader.onload = async function (e) {
-      if (!compress) {
-        compress = new Compress();
-      }
-
       const text = (e.target as any).result
 
       if (fileSize(text) > 0.5) {
-        const fileList = [base64ToFile(text)];
-        const imgSrc = await compress.compress(fileList, { size: 1, quality: 0.1 })
+        const imgSrc = await compressImage(text);
         const { prefix, data } = imgSrc[0];
 
         pasteImage(prefix + data);
@@ -150,7 +154,7 @@ function onChangeUserName(e: Event) {
   localStorage.setItem("userName", userName);
 }
 
-function onSend(data: MessageProps) {
+async function onSend(data: MessageProps): Promise<void> {
   switch (data.type) {
     case "message":
       if (data.message.trim() === '') {
@@ -158,13 +162,20 @@ function onSend(data: MessageProps) {
         return;
       }
 
-      textarea.value = "";
+      if (data.message.startsWith('data:image')) {
+        data.type = 'image';
+        const [{ data: imgData, prefix }] = await compressImage(data.message);
+        data.message = prefix + imgData;
+        return onSend(data);
+      }
+
       break;
     case "image":
       // ...
       break;
   }
 
+  textarea.value = "";
   ws.send(data);
 }
 
