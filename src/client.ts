@@ -1,4 +1,4 @@
-// Type
+
 
 // Varible - dom
 const appContainer = document.getElementById("container")!;
