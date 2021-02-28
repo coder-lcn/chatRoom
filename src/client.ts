@@ -14,11 +14,9 @@ userNameBox.innerText = userName;
 
 // Varible - function
 function fileSize(text: string) {
-  return new Blob([text]).size;
-}
+  console.log(new Blob([text]).size);
 
-function mb(num: number) {
-  return num * 1024 * 1024;
+  return new Blob([text]).size / 1024
 }
 
 function base64ToFile(dataurl: string) {
@@ -75,17 +73,14 @@ function onPaste(evt: ClipboardEvent) {
 
       const text = (e.target as any).result
 
-      if (fileSize(text) > mb(1)) {
+      if (fileSize(text) > 0.5) {
         const fileList = [base64ToFile(text)];
         const imgSrc = await compress.compress(fileList, { size: 1, quality: 0.1 })
-
         const { prefix, data } = imgSrc[0];
 
         pasteImage(prefix + data);
-        console.log('compress');
       } else {
         pasteImage(text)
-        console.log('no compress');
       }
     };
 
@@ -158,6 +153,11 @@ function onChangeUserName(e: Event) {
 function onSend(data: MessageProps) {
   switch (data.type) {
     case "message":
+      if (data.message.trim() === '') {
+        textarea.focus();
+        return;
+      }
+
       textarea.value = "";
       break;
     case "image":
