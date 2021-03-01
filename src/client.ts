@@ -1,21 +1,14 @@
-
-
 // Varible - dom
 const appContainer = document.getElementById("container")!;
 const chatList = document.getElementById("chatList")!;
 const textarea = document.getElementById("text") as HTMLTextAreaElement;
-const userNameBox = document.getElementById("userName")!;
-const sendBtn = document.getElementById("send")!;
+const adminLogin = document.getElementById('adminLogin');
 let compress: Compress;
 
 // Varible - store
-let userName = localStorage.getItem("userName") || new Date().getTime().toString();
-userNameBox.innerText = userName;
 
 // Varible - function
 function fileSize(text: string) {
-  console.log(new Blob([text]).size);
-
   return new Blob([text]).size / 1024
 }
 
@@ -57,7 +50,7 @@ function pasteImage(url: string) {
   btn.innerText = "发送";
   btn.onclick = (e) => {
     e.stopPropagation();
-    onSend({ userName, type: "image", message: url });
+    onSend({ type: "image", message: url });
     pasteImageContainer.style.display = "none";
     pasteImageContainer.remove();
   };
@@ -97,10 +90,17 @@ function onPaste(evt: ClipboardEvent) {
   }
 }
 
-function adjustNewRecord(newRecode: HTMLElement, newRecordOwner: string) {
-  if (newRecordOwner === userName) {
-    newRecode.classList.add("self");
+function onLogin() {
+  const password = prompt('请输入管理员密码');
+  if (password) {
+    console.log(password);
   }
+}
+
+function adjustNewRecord(newRecode: HTMLElement) {
+  // if (newRecordOwner === userName) {
+  //   newRecode.classList.add("self");
+  // }
 
   setTimeout(() => {
     newRecode.scrollIntoView({ behavior: "smooth" });
@@ -139,20 +139,16 @@ function messageFactory(data: MessageProps) {
 function addChatToList(data: MessageProps) {
   const oneChat = document.createElement("li");
 
-  const theName = document.createElement("span");
-  theName.innerText = data.userName;
+  const theName = document.createElement("i");
+  theName.className = 'iconfont iconuser';
 
   const theContent = messageFactory(data);
   oneChat.append(theName, theContent);
 
   chatList.appendChild(oneChat);
-  adjustNewRecord(oneChat, data.userName);
+  adjustNewRecord(oneChat);
 }
 
-function onChangeUserName(e: Event) {
-  userName = (e.target as HTMLElement).innerText;
-  localStorage.setItem("userName", userName);
-}
 
 async function onSend(data: MessageProps): Promise<void> {
   switch (data.type) {
@@ -190,7 +186,7 @@ function onMessageBoxChange(e: KeyboardEvent) {
       if (!isEmptyText) {
         e.preventDefault();
 
-        ws.send({ userName, type: "message", message: textarea.value });
+        ws.send({ type: "message", message: textarea.value });
         textarea.value = "";
       }
     }
@@ -198,10 +194,9 @@ function onMessageBoxChange(e: KeyboardEvent) {
 }
 
 // DOM Event
-userNameBox.addEventListener("input", onChangeUserName);
-sendBtn.addEventListener("click", () => onSend({ userName, message: textarea.value, type: "message" }));
 textarea.addEventListener('keypress', onMessageBoxChange);
 textarea.addEventListener("paste", onPaste);
+adminLogin?.addEventListener('click', onLogin)
 
 // WebSocket Server
 const ws = new WebSocket(`ws://localhost:3000`) as ChatRoom;
@@ -214,3 +209,4 @@ ws.onmessage = function (msg: MessageEvent) {
   const data = JSON.parse(msg.data) as MessageProps;
   addChatToList(data);
 };
+

@@ -17,6 +17,7 @@ class App {
   }
 
   onConnection(ws: WebSocket, req: http.IncomingMessage) {
+    console.log(req.headers.origin);
     this.userList.push(ws);
     ws.on("message", (msg) => this.onMessage(msg));
   }

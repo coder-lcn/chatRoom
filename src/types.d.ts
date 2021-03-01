@@ -2,7 +2,6 @@ declare type Type = "message" | "image";
 
 declare interface MessageProps {
   type: Type;
-  userName: string;
   message: string;
 }
 
