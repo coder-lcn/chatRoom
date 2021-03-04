@@ -1,8 +1,9 @@
-declare type Type = "message" | "image";
+declare type Type = "message" | "image" | "emoti";
 
 declare interface MessageProps {
   type: Type;
   message: string;
+  userName: string;
 }
 
 declare class ChatRoom extends WebSocket {
@@ -10,8 +11,11 @@ declare class ChatRoom extends WebSocket {
 }
 
 declare class Compress {
-  compress(files: File[], options: {
-    size: number,
-    quality: number,
-  }): Promise<{ data: string; prefix: string }[]> { }
+  compress(
+    files: File[],
+    options: {
+      size: number;
+      quality: number;
+    }
+  ): Promise<{ data: string; prefix: string }[]> {}
 }

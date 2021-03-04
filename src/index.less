@@ -1,8 +1,13 @@
-@import "//at.alicdn.com/t/font_2392025_uq6o3zmfky.css";
+@import "//at.alicdn.com/t/font_2392025_rytjdgsl8v.css";
 
 * {
   margin: 0;
   padding: 0;
+}
+
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 html,
@@ -12,6 +17,10 @@ body {
   background-image: linear-gradient(45deg, #30cfd0 0%, #330867 100%);
   min-width: 800px;
   overflow: auto;
+}
+
+.hide {
+  display: none;
 }
 
 .container {
@@ -26,6 +35,7 @@ body {
   min-height: 300px;
 
   ul {
+    position: relative;
     flex: 1;
     overflow: auto;
     padding: 10px;
@@ -33,11 +43,6 @@ body {
     background: url(http://leechar_rem.gitee.io/leechar/static/media/b1.9877a5b8.jpg) center center no-repeat;
     background-size: cover;
     box-shadow: 0 0 4px #000;
-
-    &::-webkit-scrollbar {
-      width: 0;
-      height: 0;
-    }
 
     li {
       list-style: none;
@@ -68,7 +73,7 @@ body {
         border-radius: 4px;
         background-color: #ffedc9;
         color: #000;
-        font-size: 20px;
+        font-size: 18px;
       }
 
       span:last-child {
@@ -106,32 +111,79 @@ body {
         border-color: transparent #fdf3f3 transparent transparent;
       }
     }
+
+    li.controller-container {
+      position: fixed;
+      bottom: 150px;
+      left: 50%;
+      transform: translate(-50%, 0);
+      width: 560px;
+      height: 0;
+      background-color: #fff;
+      margin: 0;
+      border-radius: 10px;
+      overflow: auto;
+
+      .emoti-container {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(4, 25%);
+        padding: 10px 0;
+
+        img {
+          width: 50%;
+          padding: 10px;
+          display: inline-block;
+          margin: 0 auto;
+          cursor: pointer;
+
+          &:hover {
+            background-color: #ddd;
+          }
+        }
+      }
+    }
+
+    li.controller-container.active {
+      height: 100px;
+    }
   }
 
   .form {
-    height: 100px;
-    display: flex;
+    height: 120px;
     margin-top: 10px;
     border-radius: 10px;
+    background-color: transparent;
+    position: relative;
+    display: flex;
+    flex-direction: column;
 
-    textarea {
-      outline: none;
-      flex: 1;
-      resize: none;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      background-color: transparent;
-      color: #fff;
+    .controller {
+      height: 30px;
+      display: flex;
+      justify-content: flex-end;
+      i {
+        font-size: 30px;
+        color: #fff;
+        margin-left: 10px;
+        cursor: pointer;
+      }
+      margin-bottom: 10px;
     }
 
-    button {
-      width: 80px;
-      height: 100%;
-      border-radius: 10px;
+    textarea {
+      flex: 1;
       outline: none;
+      resize: none;
+      width: 100%;
+      height: 100%;
+      background-color: transparent;
       border: none;
-      background-color: #ddd;
+      color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 10px;
+      box-sizing: border-box;
     }
   }
 
@@ -182,13 +234,4 @@ body {
     background-position: center center;
     background-repeat: no-repeat;
   }
-}
-
-.iconadmin {
-  position: absolute;
-  right: 20px;
-  top: 20px;
-  font-size: 30px;
-  color: #fff;
-  cursor: pointer;
 }

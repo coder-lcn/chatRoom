@@ -4,19 +4,27 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=0" />
-    <title>online server</title>
+    <title>chat room</title>
     <link rel="stylesheet" href="./lib/index.css" />
     <script src="./lib/compress.js" async></script>
   </head>
 
   <body>
     <div id="container" class="container">
-      <ul id="chatList"></ul>
-      <div class="form">
+      <ul id="chatList">
+        <li class="controller-container" id="controller-container"></li>
+      </ul>
+      <div class="form" id="form">
+        <div class="controller" id="controller">
+          <i class="iconfont iconfabiaoqing" name="emoti"></i>
+          <!-- <i class="iconfont iconicon-file2" name="upload"></i> -->
+        </div>
         <textarea id="text"></textarea>
       </div>
+      <!-- hide -->
+      <input type="file" id="upload" class="hide" />
     </div>
-    <i class="iconfont iconadmin" title="管理员登陆" id="adminLogin" />
+
     <script src="./lib/client.js"></script>
   </body>
 </html>
