@@ -10,16 +10,26 @@ class App {
     this.init.call(this);
   }
 
-  onMessage(msg: WebSocket.Data) {
+  private onHandleBigImage(data: MessageProps) {
+    console.log(data);
+  }
+
+  onMessage(msg: string) {
+    const data = JSON.parse(msg) as MessageProps;
+    const { type } = data;
+
+    if (type === "bigImage") {
+      return this.onHandleBigImage.call(this, data);
+    }
+
     this.userList.forEach((ws) => {
       ws.send(msg);
     });
   }
 
   onConnection(ws: WebSocket, req: http.IncomingMessage) {
-    console.log(req.headers.origin);
     this.userList.push(ws);
-    ws.on("message", (msg) => this.onMessage(msg));
+    ws.on("message", (msg) => this.onMessage(msg as string));
   }
 
   init() {

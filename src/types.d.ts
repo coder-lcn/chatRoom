@@ -1,4 +1,4 @@
-declare type Type = "message" | "image" | "emoti";
+declare type Type = "message" | "image" | "bigImage" | "emoti";
 
 declare interface MessageProps {
   type: Type;

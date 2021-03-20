@@ -33,6 +33,43 @@ body {
   display: flex;
   flex-direction: column;
 
+  .controller-container {
+    position: fixed;
+    z-index: 999;
+    bottom: 150px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    width: 560px;
+    height: 0;
+    background-color: #fff;
+    margin: 0;
+    border-radius: 10px;
+    overflow: auto;
+
+    &.active {
+      height: 100px;
+    }
+
+    .emoti-container {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(4, 25%);
+      padding: 10px 0;
+
+      img {
+        width: 50%;
+        padding: 10px;
+        display: inline-block;
+        margin: 0 auto;
+        cursor: pointer;
+
+        &:hover {
+          background-color: #ddd;
+        }
+      }
+    }
+  }
+
   ul {
     position: relative;
     flex: 1;
@@ -113,43 +150,6 @@ body {
         left: -16px;
         border-color: transparent #fdf3f3 transparent transparent;
       }
-    }
-
-    li.controller-container {
-      position: fixed;
-      z-index: 999;
-      bottom: 150px;
-      left: 50%;
-      transform: translate(-50%, 0);
-      width: 560px;
-      height: 0;
-      background-color: #fff;
-      margin: 0;
-      border-radius: 10px;
-      overflow: auto;
-
-      .emoti-container {
-        width: 100%;
-        display: grid;
-        grid-template-columns: repeat(4, 25%);
-        padding: 10px 0;
-
-        img {
-          width: 50%;
-          padding: 10px;
-          display: inline-block;
-          margin: 0 auto;
-          cursor: pointer;
-
-          &:hover {
-            background-color: #ddd;
-          }
-        }
-      }
-    }
-
-    li.controller-container.active {
-      height: 100px;
     }
   }
 

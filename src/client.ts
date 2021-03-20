@@ -25,24 +25,32 @@ const emoticons = [
   "/assets/23.png",
 ];
 
-// Varible - dom
+// Varible
 const appContainer = document.getElementById("container")!;
 const chatList = document.getElementById("chatList")!;
-const controllerContainer = chatList.querySelector("li.controller-container")!;
+const controllerContainer = document.getElementById("controllerContainer")!;
 const textarea = document.getElementById("text") as HTMLTextAreaElement;
 const adminLogin = document.getElementById("adminLogin");
 const controller = document.getElementById("controller")!;
 const upload = document.getElementById("upload")!;
 const userName = new Date().getTime().toString();
 
+// 图片大小超过 100 kb 时，启动分批传输
+const BATCH_TRANSFER_SIZE = 100;
+
 let emotiContainer: HTMLDivElement;
 let compress: Compress;
 
-// Varible - store
-
 // Varible - function
-function fileSize(text: string) {
-  return new Blob([text]).size / 1024;
+function fileSize(base64: string) {
+  if (base64) {
+    base64 = base64.split(",")[1].split("=")[0];
+    var strLength = base64.length;
+    var fileLength = strLength - (strLength / 8) * 2;
+    return Math.round(fileLength / 1000);
+  } else {
+    return 0;
+  }
 }
 
 function compressImage(url: string) {
@@ -104,7 +112,7 @@ function onPaste(evt: ClipboardEvent) {
     reader.onload = async function (e) {
       const text = (e.target as any).result;
 
-      if (fileSize(text) > 0.5) {
+      if (fileSize(text) > 100) {
         const imgSrc = await compressImage(text);
         const { prefix, data } = imgSrc[0];
 
@@ -195,7 +203,11 @@ function messageFactory(data: MessageProps) {
   return content;
 }
 
+function reciveBigImage(data: MessageProps) {}
+
 function addChatToList(data: MessageProps) {
+  if (data.type === "bigImage") return reciveBigImage(data);
+
   const oneChat = document.createElement("li");
   if (data.userName === userName) oneChat.classList.add("self");
 
@@ -212,7 +224,36 @@ function addChatToList(data: MessageProps) {
   }, 0);
 }
 
+function sendBigImage(data: MessageProps, sec: number): Promise<number> {
+  return new Promise((resolve) => {
+    const size = 10000;
+    let pice = "";
+    let index = 0;
+    let count = 0;
+    const message = data.message;
+
+    const timer = setInterval(() => {
+      pice = message.slice(index, index + size);
+
+      if (pice === "") {
+        clearInterval(timer);
+        index = 0;
+        resolve(count);
+        return;
+      }
+
+      index += size;
+      count++;
+
+      data.message = pice;
+      ws.send(data);
+    }, sec);
+  });
+}
+
 async function onSend(data: MessageProps): Promise<void> {
+  const size = fileSize(data.message);
+
   switch (data.type) {
     case "message":
       if (data.message.trim() === "") {
@@ -227,14 +268,35 @@ async function onSend(data: MessageProps): Promise<void> {
         return onSend(data);
       }
 
+      ws.send(data);
+
       break;
     case "image":
+      if (size > BATCH_TRANSFER_SIZE) {
+        data.type = "bigImage";
+        return onSend(data);
+      } else {
+        ws.send(data);
+      }
       // ...
+      break;
+    case "bigImage":
+      const sec = 10;
+
+      const time = new Date();
+      console.time(`${time}————总耗时：`);
+      const count = await sendBigImage(data, sec);
+      console.log("===================================================================================");
+      console.log(`每${sec}毫秒发送一次数据`);
+      console.log(`每次发送数据大小：`, `${(size / count).toFixed(2)}kb`);
+      console.log("发送次数：", count);
+      console.log("图片总大小：", size + "kb");
+      console.timeEnd(`${time}————总耗时：`);
+
       break;
   }
 
   textarea.value = "";
-  ws.send(data);
 }
 
 function onMessageBoxChange(e: KeyboardEvent) {
